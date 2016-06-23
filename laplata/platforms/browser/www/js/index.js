@@ -34,21 +34,26 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         document.location = 'login.html';
+        //slide('left', 'login.html');
     },
 
     doLogin: function () {
-      $.ajax(
-        url:'url_WS',
-        data:{login:$('form#login#username').val(),pass:$('form#login#password').val()},
+      var user=$("#login_username").val();
+      var pass=$("#login_password").val();
+      $.ajax({
+        url:'http://localhost/laplata_ws/index.php/getToken/'+user+'/'+pass,
         success: doLoginOK,
         error: doLoginERROR
-      );
+      });
       function doLoginOK(r){
         //lo envio al index
+        DB.save('dataLogin',r.token);
+        document.location = 'index.html';
       }
       function doLoginERROR(r){
         alert(r.responseText);
       }
     },
+
 
 };
