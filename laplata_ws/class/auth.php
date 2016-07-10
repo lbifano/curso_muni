@@ -22,4 +22,12 @@ class Auth
       }
       return false;
     }
+
+    public static function getUsuario($token) {
+      global $app;
+      $token = trim($token);
+      $sql = "SELECT * FROM user WHERE token = ?";
+      $res = $app['db']->fetchAssoc($sql, array($token));
+      return $res;
+    }
 }

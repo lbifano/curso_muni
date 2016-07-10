@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 require_once __DIR__.'/vendor/autoload.php';
 require 'class/auth.php';
+require 'class/reclamo.php';
 $app = new Silex\Application();
 $app['debug'] = true;
 
@@ -65,13 +66,59 @@ $app->get('/getToken/{usu}/{pass}', function ($usu, $pass) use ($app)  {
 
 
 $app->get('/reclamos/{token}', function ($token) use ($app)  {
-  if(Auth::checkToken($token) !== true) return  $app->json(array('ERROR' => 'Token invalido'),404);
-  $sql_usuario = "SELECT login FROM user where token = '".$token."'";
+    if(Auth::checkToken($token) !== true) return  $app->json(array('ERROR' => 'Token invalido'),404);
+    $sql_usuario = "SELECT login FROM user where token = '".$token."'";
   $res_usu = $app['db']->fetchAssoc($sql_usuario);
 
   $sql = "SELECT * FROM reclamo WHERE login = ? ";
   $reclamos = $app['db']->fetchAssoc($sql, array($res_usu['login']));
   return $app->json(array('reclamos' => $reclamos),200);
+});
+
+$app->post('/reclamos/{obs}/{categoria}/{lng}/{lat}/{error}/{token}', function ($obs,$categoria,$lng,$lat,$error,$token) use ($app)  {
+  if(Auth::checkToken($token) !== true) return  $app->json(array('ERROR' => 'Token invalido'),404);
+  $usuario = Auth::getUsuario($token);
+  $sql = "INSERT INTO reclamo (login, observacion, gps_lng, gps_lat, gps_err) values (?,?,?,?,?)";
+  $res = $app['db']->insert('reclamo', array( 'login' => $usuario['login'] ,
+                                              'observacion' => $obs,
+                                              'gps_lng' => $lng,
+                                              'gps_lat' => $lat,
+                                              'gps_err' => $error));
+  return $app->json($res,201);
+});
+
+$app->get('/reclamosRelacionados/{lng}/{lat}/{token}', function ($lng,$lat,$token) use ($app)  {
+  if(Auth::checkToken($token) !== true) return  $app->json(array('ERROR' => 'Token invalido'),404);
+  if(Reclamo::recRelacionado($lng,$lat)) {
+    //devulevo la lista con estado 200OK
+  }
+  else {
+    return $app->json(array(),201);
+  }
+});
+
+$app->get('/reincidirReclamo/{id}/{obs}/{token}', function ($id,$token) use ($app)  {
+  if(Auth::checkToken($token) !== true) return  $app->json(array('ERROR' => 'Token invalido'),404);
+  $usuario = Auth::getUsuario($token);
+  $res = $app['db']->insert('reincidir', array( 'login' => $usuario['loogin'] ,
+                                              'observacion' => $obs,
+                                              'id_reclamo' => $id));
+  return $app->json($res,200);
+});
+
+$app->post('/upload', function (Request $request) use ($app) {
+     $file = $request->files->get('upload');
+     if ($file == NULL)
+     {
+         $send = json_encode(array('status' => 'Fail'));
+         return $app->json($send, 500);
+     }
+     else
+     {
+          $file->move(__DIR__.'/../files', $file->getClientOriginalName());
+          $send = json_encode(array('status' => 'Ok'));
+          return $app->json($send, 200);
+     }
 });
 
 $app->run();
