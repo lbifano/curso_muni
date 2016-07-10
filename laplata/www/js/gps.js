@@ -1,8 +1,8 @@
 var GPS = {
 
   init: function() {
-  	
-  	
+
+
   	this.watchID = null;
 
   	this.options = {
@@ -10,25 +10,26 @@ var GPS = {
 	  timeout: 5000,
 	  maximumAge: 15000,
     desiredAccuracy: Config.gps_max_acc,
-    maxWait: Config.gps_max_time * 1000, 
+    maxWait: Config.gps_max_time * 1000,
     saltarError: true
 	  };
 
 
   },
 
-  cb_fail: function(e) 
+  cb_fail: function(e)
   {      app.notificar();
       app.waitStop();
       app.showAlert("Error al guardar, asegurese de que el GPS tenga señal e intente nuevamente.");
   },
-  cb_prog: function(p) 
+  cb_prog: function(p)
   {
       //alert("prog. " + p.coords.accuracy);
   },
 
   geoAndThen: function(func)
   {
+    
         console.log("GPS.geoAndThen.....");
         if (navigator.geolocation && Config.gps_activado)
         {
@@ -41,9 +42,9 @@ var GPS = {
           a.coords.latitude = 0;
           a.coords.longitude = 0;
           a.coords.accuracy = 0;
-            
+
           func(a);
-        }        
+        }
 
   },
 
@@ -59,7 +60,7 @@ var GPS = {
 
   stopWatch: function()
   {
-  	if(navigator.geolocation && this.watchID != null) 
+  	if(navigator.geolocation && this.watchID != null)
   	{
   		  navigator.geolocation.clearWatch(this.watchID);
   		  this.watchID = null;
@@ -83,7 +84,7 @@ var GPS = {
       if (unit=="K") { dist = dist * 1.609344; }
       if (unit=="M") { dist = dist * 1.609344 * 1000; }
       if (unit=="N") { dist = dist * 0.8684; }
-      
+
       //alert(lat1 + ":" + lon1 + '   ' + lat2 + ':' + lon2 + ' --> '+ dist);
       return dist;
     },
@@ -160,5 +161,3 @@ navigator.geolocation.getAccurateCurrentPosition = function (geolocationSuccess,
     watchID = navigator.geolocation.watchPosition(checkLocation, onError, options);
     timerID = setTimeout(stopTrying, options.maxWait); // Set a timeout that will abandon the location loop
 };
-
-

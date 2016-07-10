@@ -24,20 +24,20 @@
         <div class="row margin">
           <div class="input-field col s12">
             <i class="mdi-social-person-outline prefix"></i>
-            <input id="username" type="text">
-            <label for="username" class="center-align">Usuario</label>
+            <input id="login_username" type="text">
+            <label for="login_username" class="center-align">Usuario</label>
           </div>
         </div>
         <div class="row margin">
           <div class="input-field col s12">
             <i class="mdi-action-lock-outline prefix"></i>
-            <input id="password" type="password">
-            <label for="password">Contraseña</label>
+            <input id="login_password" type="password">
+            <label for="login_password">Contraseña</label>
           </div>
         </div>
         <div class="row">
           <div class="input-field col s12">
-            <span class="btn waves-effect waves-light col s12 pink" onclick="slide('left','index.html')">Login</span>
+            <span class="btn waves-effect waves-light col s12 pink" onclick="app.doLogin()">Login</span>
           </div>
         </div>
         <div class="row">
@@ -52,5 +52,6 @@
     <script type="text/javascript" src="js/jquery-3.0.0.min.js"></script>
     <script type="text/javascript" src="js/materialize.min.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript" src="js/db.js"></script>
   </body>
 </html>

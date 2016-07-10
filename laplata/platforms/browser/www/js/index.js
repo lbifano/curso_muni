@@ -33,7 +33,7 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        document.location = 'login.html';
+        //document.location = 'login.html';
         //slide('left', 'login.html');
     },
 
@@ -53,6 +53,86 @@ var app = {
       function doLoginERROR(r){
         alert(r.responseText);
       }
+    },
+
+    doAltaReclamo: function(posicion) {
+      var observacion = $("#rec_observacion").val();
+      var categoria = $("#rec_categoria").val();
+      $.ajax({
+        url: 'http://localhost/laplata_ws/index.php/reclamo/'+observacion+'/'+categoria+'/'+posicion.coords.longitude+'/'+posicion.coords.latitude+'/'+posicion.coords.accuracy+'/'+DB.get('dataLogin'),
+        type: 'POST',
+        success: okReclamo,
+        error: errReclamo
+      });
+      function okReclamo() {
+
+      }
+      function errReclamo() {
+
+      }
+    },
+    altaReclamo: function(e) {
+
+      geoAndThen(doAltaReclamo);
+    },
+    takePhoto: function(e) {
+      if (navigator.camera)
+      {
+        app.capture();
+      }
+      else
+      {
+        IMAGE_URI = 'img/logo.png';
+        app.addFoto(IMAGE_URI);
+      }
+    },
+
+    addFoto: function(src)
+    {
+        var img = $('<img class="foto" onclick="if(confirm(\'Desea eliminar esta foto?\')) $(this).remove();">');
+        img.attr('src', src);
+        img.appendTo('#fotos');
+    },
+
+    capture: function() {
+          navigator.camera.getPicture(app.onCaptureSuccess, app.onCaptureFail, {
+            destinationType: Camera.DestinationType.FILE_URI,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            targetWidth: 200,
+            correctOrientation: true
+          });
+    },
+
+    onCaptureSuccess: function(imageURI) {
+        IMAGE_URI = imageURI;
+        app.addFoto(IMAGE_URI);
+    },
+    onCaptureFail: function() {
+        alert('Ocurrio un error al capturar la imagen');
+    },
+
+     uploadFoto: function (imageURI, params) {
+
+        cb_ok = function (r) {
+           console.log("Code = " + r.responseCode);
+           console.log("Response = " + r.response);
+           // borrar la foto
+        }
+
+        cb_fail = function (error) {
+          console.log("Response = " +  error.code);
+          //marcar para intentar luego
+        }
+
+         var ft = new FileTransfer();
+         var options = new FileUploadOptions();
+         options.fileKey= "file";
+         options.fileName=imagefile.substr(imagefile.lastIndexOf('/')+1);
+         options.mimeType="image/jpeg";
+         options.params = params;
+         options.chunkedMode = false;
+
+         ft.upload(imagefile, 'http://localhost/laplata_ws/index.php/upload', cb_ok, cb_fail, options);
     },
 
 
