@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 require_once __DIR__.'/vendor/autoload.php';
 require 'class/auth.php';
 require 'class/reclamo.php';
+use Symfony\Component\HttpFoundation\Request;
 $app = new Silex\Application();
 $app['debug'] = true;
 
@@ -75,7 +76,7 @@ $app->get('/reclamos/{token}', function ($token) use ($app)  {
   return $app->json(array('reclamos' => $reclamos),200);
 });
 
-$app->post('/reclamos/{obs}/{categoria}/{lng}/{lat}/{error}/{token}', function ($obs,$categoria,$lng,$lat,$error,$token) use ($app)  {
+$app->post('/reclamo/{obs}/{categoria}/{lng}/{lat}/{error}/{token}', function ($obs,$categoria,$lng,$lat,$error,$token) use ($app)  {
   if(Auth::checkToken($token) !== true) return  $app->json(array('ERROR' => 'Token invalido'),404);
   $usuario = Auth::getUsuario($token);
   $sql = "INSERT INTO reclamo (login, observacion, gps_lng, gps_lat, gps_err) values (?,?,?,?,?)";
@@ -107,18 +108,72 @@ $app->get('/reincidirReclamo/{id}/{obs}/{token}', function ($id,$token) use ($ap
 });
 
 $app->post('/upload', function (Request $request) use ($app) {
-     $file = $request->files->get('upload');
+     $file = $request->files->get('file');
      if ($file == NULL)
      {
-         $send = json_encode(array('status' => 'Fail'));
-         return $app->json($send, 500);
+         return $app->json(array('status' => 'Fail'), 500);
      }
      else
      {
-          $file->move(__DIR__.'/../files', $file->getClientOriginalName());
-          $send = json_encode(array('status' => 'Ok'));
-          return $app->json($send, 200);
+          $file->move(__DIR__.'/files', $file->getClientOriginalName());
+          return $app->json(array('status' => 'Ok'), 200);
      }
 });
+
+
+$app->get('/send_msg/{title}/{msj}/{id}', function ($title,$msj,$id) use ($app) {
+  #$sql = "SELECT * FROM usuarios WHERE id = ?";
+  #$res = $app['db']->fetchAssoc($sql, array((int) $id));
+  if(1) {
+    // API access key from Google API's Console
+    define( 'API_ACCESS_KEY', 'AIzaSyB0cpwVJGMIGbfZAIdZbXTmY2-d7jG579s' );
+    #$registrationIds = array( $res['api_key'] );
+    // prep the bundle
+    $to = "cWq0ar48MWM:APA91bFgtoU6-W9GqU0kHBKQYN0zbCok1TfoQbdHI734O1pkUTDGQgyy-WFqEpZT25PKEjdTiNz1J54JjMrYu8uFvvENmzeHVNYJsT3VfgEuVgXpaZLl4JrOJBBAbNJHHWb5Ii5VYnrA";
+    $fields = array
+    (
+      "notification" => array(
+        "title"=>$title,
+        "body"=>$msj,
+        "sound"=>"default",
+        "click_action"=>"FCM_PLUGIN_ACTIVITY",
+        "icon"=>"fcm_push_icon",
+        "color"=> "#ff0000"
+      )
+      ,
+      "data" => array(
+        "sexo"=>"M",
+        "estatura"=>"1,60",
+        "peso"=> "80"
+      )
+      ,
+        "to" => $to,
+        "priority" => "high",
+        "restricted_package_name" => ""
+    );
+
+    $headers = array
+    (
+      'Authorization: key=' . API_ACCESS_KEY,
+      'Content-Type: application/json'
+    );
+
+    $ch = curl_init();
+    curl_setopt( $ch,CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
+    curl_setopt( $ch,CURLOPT_POST, true );
+    curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+    curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+    curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+    $result = curl_exec($ch );
+    curl_close( $ch );
+    return  $app->json($result,200);
+  } else {
+    return $app->json('USER NOT FOUND', 500);
+  }
+
+});
+
+
 
 $app->run();

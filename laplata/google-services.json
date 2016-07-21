@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "14606199129",
+    "firebase_url": "https://flickering-torch-6223.firebaseio.com",
+    "project_id": "flickering-torch-6223",
+    "storage_bucket": "flickering-torch-6223.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14606199129:android:a9e95e83b3725342",
+        "android_client_info": {
+          "package_name": "com.laplata.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "14606199129-idurjhl27mqub77b1r7puplt907b1l6j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNJeIp2ghDg4zvrnHBDL_YQohMQ9gNotQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
